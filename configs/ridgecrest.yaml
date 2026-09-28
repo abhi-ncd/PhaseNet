@@ -1,0 +1,76 @@
+# Demo: 2019 Ridgecrest aftershock sequence (southern California).
+# python -m eqsys.run --config configs/ridgecrest.yaml --stage all
+
+name: ridgecrest
+run_dir: runs/ridgecrest
+
+region:
+  minlatitude: 35.3
+  maxlatitude: 36.2
+  minlongitude: -118.0
+  maxlongitude: -117.1
+
+# Six hours of the aftershock sequence, four days after the M7.1 mainshock.
+starttime: 2019-07-10T00:00:00
+endtime: 2019-07-10T06:00:00
+
+download:
+  providers: [SCEDC]
+  network: CI
+  channel: "HH?,BH?,EH?"
+  channel_priorities: ["HH[ZNE12]", "BH[ZNE12]", "EH[ZNE12]"]
+  max_stations: 20
+  chunk_seconds: 3600
+
+pick:
+  model_dir: model/190703-214543
+  min_p_prob: 0.3
+  min_s_prob: 0.3
+
+associate:
+  vel: {p: 6.0, s: 3.47}
+  use_amplitude: true
+  min_picks_per_eq: 8
+  z_range_km: [0, 20]
+  ncpu: 2
+
+locate:
+  # simplified southern California 1D model (Hadley & Kanamori, 1977)
+  velocity_model:
+    Z: [0.0, 5.5, 16.0, 32.0]
+    P: [5.5, 6.3, 6.7, 7.8]
+  vp_vs_ratio: 1.73
+  z_range_km: [0, 20]
+  ncpu: 2
+
+magnitude:
+  # Hutton & Boore (1987) southern California -log A0 coefficients
+  a: 1.110
+  b: 0.00189
+  c: 3.0
+
+catalog:
+  reference_client: USGS
+  match_time_s: 3.0
+  match_distance_km: 15.0
+
+forecast:
+  source: reference
+  client: USGS
+  # a wider box than the detection region, so the catalog is long enough to fit the models
+  region:
+    minlatitude: 35.0
+    maxlatitude: 36.5
+    minlongitude: -118.5
+    maxlongitude: -116.8
+  starttime: 2000-01-01
+  train_end: 2016-01-01
+  valid_end: 2019-01-01
+  endtime: 2021-01-01
+  min_magnitude: 2.0
+  delta_m: 0.1
+  horizon_days: 1
+  n_simulations: 200
+  n_simulations_daily: 100
+  spatial_etas: true
+  ntpp: {hidden: 32, n_mix: 8, epochs: 300, lr: 0.003, seed: 0}

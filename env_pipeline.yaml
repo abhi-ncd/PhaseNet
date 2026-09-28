@@ -1,0 +1,29 @@
+# Environment for the eqsys pipeline (PhaseNet + association, location, magnitude, forecasting).
+# TensorFlow stays at 2.11 because phasenet/model.py uses tf.compat.v1.layers, which Keras 3 removed.
+name: phasenet
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - tensorflow==2.11.0
+      - numpy==1.26.4
+      - "setuptools<81"          # obspy and pycsep still import pkg_resources
+      - obspy
+      - pandas
+      - scipy
+      - scikit-learn
+      - matplotlib
+      - h5py
+      - tqdm
+      - pyproj
+      - pyyaml
+      - pytest
+      - geopandas
+      - shapely
+      - torch==2.5.1             # newer wheels segfault on import next to TF 2.11 on macOS arm64
+      - pycsep
+      - git+https://github.com/AI4EPS/GaMMA.git
+      - git+https://github.com/AI4EPS/ADLoc.git
+      - git+https://github.com/lmizrahi/etas.git@3.2   # later releases require Python >= 3.12
